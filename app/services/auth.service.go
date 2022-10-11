@@ -1,41 +1,117 @@
 package services
 
 import (
-	// "github.com/gofiber/fiber/v2/middleware/basicauth"
+	"errors"
 
+	"gorm.io/gorm"
+
+	"github.com/JohnBurtt10/go/app/models"
+	"github.com/JohnBurtt10/go/app/repos"
+	"github.com/JohnBurtt10/go/database"
 	"github.com/gofiber/fiber/v2"
 )
 
-func Login(ctx *fiber.Ctx) error         { return nil }
-func Logout(ctx *fiber.Ctx) error        { return nil }
-func Signup(ctx *fiber.Ctx) error        { return nil }
-func ResetPassword(ctx *fiber.Ctx) error { return nil }
+//TODO: make it so that these functions use repo functions
 
-// // Or extend your config for customization
-// app.Use(basicauth.New(basicauth.Config{
-// 	Users: map[string]string{},
-// 	Realm: "Forbidden",
-// 	Authorizer: func(user, pass string) bool {
-// 		var test User
-// 		if err := db.Where("Username = ?", user).First(&test).Error; err != nil {
-// 			// Username does not match any accounts in database
-// 			if errors.Is(err, gorm.ErrRecordNotFound) {
-// 				fmt.Println("no record found")
-// 			}
-// 			return false
-// 		}
-// 		// Password entered matches that of the password on record for account for username entered
-// 		if test.Pass == pass {
+func Login(ctx *fiber.Ctx) error {
+	b := new(models.User)
+	if err := ctx.BodyParser(&b); err != nil {
+		return err
+	}
+	u := new(models.User)
+	err := database.DBConn.Where("Username = ? AND Password = ?", b.Username, b.Password).Take(&u).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return fiber.NewError(fiber.StatusConflict, "Invalid username or password")
+	}
 
-// 			return true
-// 		}
-// 		// Password entered does not match that of the password on record for account for username entered
-// 		fmt.Println("password doens't match")
-// 		return false
-// 	},
-// 	// Unauthorized: func(c *fiber.Ctx) error {
-// 	// 	return c.SendFile("./unauthorized.html")
-// 	// },
-// 	ContextUsername: "_user",
-// 	ContextPassword: "_pass",
-// }))
+	sess, err := database.SessionStore.Get(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	// Set key/value
+	sess.Set("ID", u.ID)
+	sess.Set("username", u.Username)
+
+	// save session
+	if err := sess.Save(); err != nil {
+		panic(err)
+	}
+
+	return ctx.JSON(&models.UserResponse{
+		ID:       u.ID,
+		Username: u.Username,
+	})
+}
+
+func Signup(ctx *fiber.Ctx) error {
+	b := new(models.User)
+
+	if err := ctx.BodyParser(&b); err != nil {
+		return err
+	}
+	u := new(models.User)
+	err := database.DBConn.Where("Username = ?", b.Username).Take(&u).Error
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return fiber.NewError(fiber.StatusConflict, "Username is taken")
+	}
+
+	if err := database.DBConn.Create(&b).Error; err != nil {
+		return err
+	}
+
+	// why do we return this as an error
+
+	return ctx.JSON(&models.UserResponse{
+		ID:       u.ID,
+		Username: u.Username,
+	})
+}
+
+func Logout(ctx *fiber.Ctx) error {
+	sess, err := database.SessionStore.Get(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	// Destry session
+	if err := sess.Destroy(); err != nil {
+		panic(err)
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"message": "You are logged out 😉",
+	})
+}
+
+func ResetPassword(ctx *fiber.Ctx) error {
+	sess, err := database.SessionStore.Get(ctx)
+	if err != nil {
+		panic(err)
+	}
+	type Request struct {
+		OldPassword string `json:"oldpassword" validate:"omitempty,min=8,max=20,alphanum"`
+		NewPassword string `json:"newpassword" validate:"omitempty,min=8,max=20,alphanum"`
+	}
+
+	b := new(Request)
+	if err := ctx.BodyParser(&b); err != nil {
+		return err
+	}
+
+	u, err := repos.GetUserByID(sess.Get("ID").(uint))
+	if err != nil {
+		return err
+	}
+
+	if b.OldPassword != u.Password {
+		return fiber.NewError(fiber.StatusConflict, "Password doesn't match records")
+	}
+
+	if err := repos.ChangeUserPassword(u, b.NewPassword); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -1,0 +1,55 @@
+<html>
+<head>
+</head>
+<body>
+
+  <form onsubmit="signUp(this); return false;">
+    <label for="fusername">Old Password:</label><br>
+    <input type="text" id="usernameUserInput" name="fusername"><br>
+    <label for="fnewpassword">New Password:</label><br>
+    <input type="text" id="newPasswordUserInput" name="fnewpassword"><br>
+    <label for="fconfirmnewpassword">Confirm New Password:</label><br>
+    <input type="text" id="confirmNewPasswordUserInput" name="fconfirmnewpassword"><br>
+    <p id="updatePasswordStatus"> Hi I'm status </p>
+    <input type="submit" value="Submit">
+  </form>
+
+  <button type="button" onclick="signUp()">Sign up</button>
+
+<script>
+
+
+function signUp(param) { 
+  var username = document.getElementById("username").value; 
+  var password = document.getElementById("newPasswordUserInput").value; 
+  var confirmNewPassword = document.getElementById("confirmPasswordUserInput").value; 
+  if (newPassword != confirmNewPassword) { 
+    document.getElementById("signUpStatus").innerHTML = "Passwords don't match."
+    return
+  }
+  fetch('auth/signup/', {
+  method: 'POST',
+  headers: {
+    'Accept': 'application/json, text/plain, */*',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({username: username, newPassword: newPassword})
+}).then(response => {
+    console.log(response);
+    if (response.ok) { 
+      document.getElementById("signUpStatus").innerHTML = "Account sucessfully created. You are now able to sign in"
+    }
+    // else if here for username being taken
+    else { 
+      document.getElementById("signUpStatus").innerHTML = "Unknown error occurred, please try again later"
+    }
+    loadDoc();
+}).catch(e => {
+    console.log(e);
+});
+
+}
+
+</script>
+</body>
+</html>
