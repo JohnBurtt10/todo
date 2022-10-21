@@ -37,12 +37,40 @@ func GetTasks(c *fiber.Ctx) error {
 		"success": true,
 		"data":    result,
 	})
-	// if Task not available
 
 }
 
-// get task by ID
-// update task
+func UpdateTask(c *fiber.Ctx) error {
+	var body models.Task
+
+	if err := c.BodyParser(&body); err != nil {
+		fmt.Println(err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "Cannot parse JSON",
+		})
+	}
+	aTask, err := repos.UpdateTask(body.ID, body.TaskName, body.Assignee, body.IsDone)
+	if err != nil {
+		fmt.Println(err)
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+			"success": false,
+			"message": err.Error(),
+		})
+	}
+	result := &models.TaskResponse{}
+	if err := copier.Copy(&result, &aTask); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "Cannot map results",
+		})
+	}
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"success": true,
+		"data":    result,
+	})
+
+}
 
 func DeleteTask(c *fiber.Ctx) error {
 	paramId := c.Params("id")

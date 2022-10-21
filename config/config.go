@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/storage/redis"
+	"github.com/gofiber/template/html"
 	"github.com/spf13/viper"
 )
 
@@ -27,6 +28,40 @@ type Config struct {
 var instantiated *Config
 var once sync.Once
 
+var defaultErrorHandler = func(c *fiber.Ctx, err error) error {
+	// Status code defaults to 500
+	code := fiber.StatusInternalServerError
+
+	// Set error message
+	// var message interface{}
+
+	// Check if it's a fiber.Error type
+	if e, ok := err.(*fiber.Error); ok {
+		code = e.Code
+		// if m, ok := e.Message.(string); ok {
+		// 	message = m
+		// }
+	}
+
+	// TODO: Check return type for the client, JSON, HTML, YAML or any other (API vs web)
+
+	// Return HTTP response
+	c.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
+	c.Status(code)
+	// Return statuscode with error message
+	return c.Status(code).SendString(err.Error())
+
+	// // Render default error view
+	// if renderErr := c.Render("errors/"+strconv.Itoa(code), fiber.Map{"message": message}); renderErr != nil {
+	// 	// Set Content-Type: text/plain; charset=utf-8
+	// 	c.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
+
+	// 	// Return statuscode with error message
+	// 	return c.Status(code).SendString(err.Error())
+	// }
+	// return err
+}
+
 func GetInstance() *Config {
 	once.Do(func() {
 		instantiated = &Config{
@@ -36,16 +71,24 @@ func GetInstance() *Config {
 		// Set default configurations
 		instantiated.setDefaults()
 
+		// Set Fiber configurations
+		instantiated.setFiberConfig()
+
 		// Select the .env file
 		instantiated.SetConfigName(".env")
 		instantiated.SetConfigType("dotenv")
 		instantiated.AddConfigPath(".")
+		instantiated.SetErrorHandler(defaultErrorHandler)
 
 		// Automatically refresh environment variables
 		instantiated.AutomaticEnv()
 
 	})
 	return instantiated
+}
+
+func (config *Config) SetErrorHandler(errorHandler fiber.ErrorHandler) {
+	config.errorHandler = errorHandler
 }
 
 func (config *Config) setDefaults() {
@@ -57,6 +100,22 @@ func (config *Config) setDefaults() {
 	config.SetDefault("MW_FIBER_SESSION_STORAGE_RESET", false)
 	config.SetDefault("MW_FIBER_SESSION_EXPIRATION", "24h")
 
+}
+
+func (config *Config) setFiberConfig() {
+	config.fiber = &fiber.Config{
+		Views:        config.getFiberViewsEngine(),
+		ErrorHandler: config.errorHandler,
+	}
+}
+
+func (config *Config) GetFiberConfig() *fiber.Config {
+	return config.fiber
+}
+
+func (config *Config) getFiberViewsEngine() fiber.Views {
+	engine := html.New("./views", ".html")
+	return engine
 }
 
 func (config *Config) GetSessionConfig() session.Config {

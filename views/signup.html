@@ -1,55 +1,222 @@
-<html>
-<head>
-</head>
-<body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#213563">
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.1/examples/sign-in/">
+    <meta name="msapplication-TileColor" content="#343a40">
+    <meta name="theme-color" content="#343a40">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Maintainer">
+    <meta name="apple-mobile-web-app-title" content="Maintainer">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="msapplication-starturl" content="/">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+        integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
 
-  <form onsubmit="signUp(this); return false;">
-    <label for="fusername">Old Password:</label><br>
-    <input type="text" id="usernameUserInput" name="fusername"><br>
-    <label for="fnewpassword">New Password:</label><br>
-    <input type="text" id="newPasswordUserInput" name="fnewpassword"><br>
-    <label for="fconfirmnewpassword">Confirm New Password:</label><br>
-    <input type="text" id="confirmNewPasswordUserInput" name="fconfirmnewpassword"><br>
-    <p id="updatePasswordStatus"> Hi I'm status </p>
-    <input type="submit" value="Submit">
-  </form>
+    <title>TODO - Sign Up</title>
 
-  <button type="button" onclick="signUp()">Sign up</button>
-
-<script>
+    <link href="/assets/dist/css/bootstrap.min.css" rel="stylesheet">
 
 
-function signUp(param) { 
-  var username = document.getElementById("username").value; 
-  var password = document.getElementById("newPasswordUserInput").value; 
-  var confirmNewPassword = document.getElementById("confirmPasswordUserInput").value; 
-  if (newPassword != confirmNewPassword) { 
-    document.getElementById("signUpStatus").innerHTML = "Passwords don't match."
-    return
-  }
-  fetch('auth/signup/', {
-  method: 'POST',
-  headers: {
-    'Accept': 'application/json, text/plain, */*',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({username: username, newPassword: newPassword})
-}).then(response => {
-    console.log(response);
-    if (response.ok) { 
-      document.getElementById("signUpStatus").innerHTML = "Account sucessfully created. You are now able to sign in"
-    }
-    // else if here for username being taken
-    else { 
-      document.getElementById("signUpStatus").innerHTML = "Unknown error occurred, please try again later"
-    }
-    loadDoc();
-}).catch(e => {
-    console.log(e);
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+
+    
+    <!-- Custom styles for this template -->
+      <link href="/css/signup.css" rel="stylesheet">
+    </head>
+    <body class="text-center">
+      
+  <main class="form-signin">
+    <form class="row g-3 needs-validation" novalidate onsubmit="return false;">
+      <div class="col-md-4">
+        <label for="validationCustom01" class="form-label">First name</label>
+        <input type="text" class="form-control" id="validationCustom01" value="Mark" required>
+        <div class="valid-feedback">
+          Looks good!
+        </div>
+      </div>
+      <div class="col-md-4">
+        <label for="validationCustom02" class="form-label">Last name</label>
+        <input type="text" class="form-control" id="validationCustom02" value="Otto" required>
+        <div class="valid-feedback">
+          Looks good!
+        </div>
+      </div>
+      <div class="col-md-4">
+        <label for="validationCustomUsername" class="form-label">Username</label>
+        <div class="input-group has-validation">
+          <span class="input-group-text" id="inputGroupPrepend">@</span>
+          <input type="text" class="form-control" id="validationCustomUsername" aria-describedby="inputGroupPrepend" required>
+          <div class="valid-feedback">
+            Looks good!
+          </div>
+          <div class="invalid-feedback">
+            <p id ="tag">Please choose a username.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label for="validationCustom03" class="form-label">Password</label>
+        <input type="password" class="form-control" id="validationCustom03" required>
+        <div class="invalid-feedback">
+          Please provide a valid password.
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label for="validationCustom04" class="form-label">Confirm Password</label>
+        <input type="password" class="form-control" id="validationCustom04" required>
+        <div class="invalid-feedback">
+          That password doesn't match.
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="invalidCheck" required>
+          <label class="form-check-label" for="invalidCheck">
+            Agree to terms and conditions
+          </label>
+          <div class="invalid-feedback">
+            You must agree before submitting.
+          </div>
+        </div>
+      </div>
+      <div class="col-12">
+        <button class="btn btn-primary" type="submit">Sign up</button>
+      </div>
+    </form>
+    <p>Already have an account? <a href="/login">Log in</a></p>
+  </main>
+  
+    <script>
+
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+(function () {
+  'use strict'
+
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  var forms = document.querySelectorAll('.needs-validation')
+
+  // Loop over them and prevent submission
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        if (form.checkValidity()) { 
+          signUp(form);
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+
+const nameField = document.getElementById('validationCustomUsername');
+nameField.addEventListener('focusout', () => {
+  nameField.classList.remove('is-invalid');
+  nameField.setCustomValidity('');
+  document.getElementById('tag').innerHTML = 'Please chose an username';
+  checkUsername(nameField);
+  // I don't know what this does
+  nameField.checkValidity();
+    // console.log(nameField.checkValidity());
 });
 
-}
+// nameField.addEventListener('invalid', () => {
+// })
 
-</script>
-</body>
+
+function checkUsername(param) {
+  if (param.value == "") { 
+    return
+  }
+  fetch('api/user/', {
+      method: 'POST',
+      headers: {
+      "Content-Type" : "application/json"
+    },
+    body: JSON.stringify({username: param.value})
+    }).then(async response => {
+        const isJson = response.headers.get('content-type')?.includes('application/json');
+        const data = isJson ? await response.json() : null;
+
+        // check for error response
+        if (!response.ok) {
+            // get error message from body or default to response status
+            const error = (data && data.message) || response.status;
+            return Promise.reject(error);
+        }
+        param.setCustomValidity('not-blank');
+        document.getElementById('tag').innerHTML = 'Username already taken';
+        nameField.classList.remove('is-valid');
+        param.classList.add('is-invalid');
+    })
+    .catch(error => {
+        // document.getElementById('loginStatus').innerHTML = `Error: ${error}`;
+        console.error('There was an error!', error);
+    });
+  }
+    function signUp(param) {
+      var password = document.getElementById('validationCustom03').value; 
+      var confirmNewPassword = document.getElementById('validationCustom04').value;
+      if (password != confirmNewPassword) {
+        document.getElementById('validationCustom04').value = '';
+        return
+      }
+      var firstname = document.getElementById('validationCustom01').value; 
+      var lastname = document.getElementById('validationCustom02').value;
+      var username = document.getElementById('validationCustomUsername').value; 
+      fetch('auth/signup/', {
+      method: 'POST',
+      headers: {
+      "Content-Type" : "application/json"
+    },
+      body: JSON.stringify({firstname: firstname, lastname: lastname, username: username, password: password})
+    }).then(async response => {
+        const isJson = response.headers.get('content-type')?.includes('application/json');
+        const data = isJson ? await response.json() : null;
+
+        // check for error response
+        if (!response.ok) {
+            // get error message from body or default to response status
+            const error = (data && data.message) || response.status;
+            return Promise.reject(error);
+        }
+        window.location.href = '/';
+    })
+    .catch(error => {
+      if (error == 409) { 
+      }
+        console.error('There was an error!', error);
+    });
+    
+    }
+    </script>
+  </body>
 </html>
+
+
+

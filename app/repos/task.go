@@ -17,6 +17,13 @@ func GetTasks(userID uint) (*[]models.Task, error) {
 	return &tasks, err
 }
 
+func UpdateTask(TaskID uint, TaskName string, Assignee string, IsDone bool) (*models.Task, error) {
+	var task = models.Task{TaskName: TaskName, Assignee: Assignee, IsDone: IsDone}
+	err := database.DBConn.Model(models.Task{ID: TaskID}).Select("TaskName", "Assignee", "IsDone").Updates(models.Task{TaskName: TaskName, Assignee: Assignee, IsDone: IsDone}).Error
+	return &task, err
+
+}
+
 func DeleteTask(taskID uint) error {
 	var item models.Task
 	// Delete the note and return error if encountered

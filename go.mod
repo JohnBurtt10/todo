@@ -3,6 +3,8 @@ module github.com/JohnBurtt10/go
 go 1.14
 
 require (
+	github.com/alexedwards/argon2id v0.0.0-20211130144151-3585854a6387 // indirect
+	github.com/githubnemo/CompileDaemon v1.4.0 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/go-sql-driver/mysql v1.6.0
@@ -21,6 +23,7 @@ require (
 	github.com/qinains/fastergoding v0.0.2
 	github.com/spf13/viper v1.13.0 // indirect
 	github.com/swaggo/swag v1.8.6 // indirect
+	golang.org/x/crypto v0.0.0-20221012134737-56aed061732a // indirect
 	gorm.io/driver/mysql v1.3.6 // indirect
 	gorm.io/driver/postgres v1.3.10 // indirect
 	gorm.io/driver/sqlite v1.3.6 // indirect

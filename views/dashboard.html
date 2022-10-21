@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#213563">
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.1/examples/sign-in/">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta name="msapplication-TileColor" content="#343a40">
+    <meta name="theme-color" content="#343a40">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Maintainer">
+    <meta name="apple-mobile-web-app-title" content="Maintainer">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="msapplication-starturl" content="/">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+        integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+
+    <title>TODO - Log In</title>
+
+<link href="/assets/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+      .btn-circle.btn-md {
+            width: 50px;
+            height: 50px;
+            padding: 7px 10px;
+            border-radius: 25px;
+            border-color: grey;
+            font-size: 20px;
+            position: relative;
+            left: 1700px;
+            text-align: center;
+      }
+
+      .dropdown-menu { 
+        display: none;
+        position: absolute;
+        min-width: 160px;
+        max-width: 300px;
+        overflow: auto;
+        left: 1590px;
+        z-index: 1;
+      }
+    
+    </style>
+
+    <!-- Custom styles for this template -->
+      <link href="/css/dashboard.css" rel="stylesheet">
+  </head>
+  <!-- <body class="text-center"> -->
+
+    <div class="p-3 mb-2 bg-primary text-white">
+      <div class="dropdown">
+        <button class="btn btn-light btn-circle btn-md" onclick="myFunction()" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+          {{ .SettingIcon }}
+        </button>
+        <div id="myDropdown" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="/changePassword">Change Password</a>
+          <a class="dropdown-item" onclick="logout()">Logout</a>
+        </div>
+      </div>
+    </div>
+
+  <div class="page-content page-container" id="page-content">
+    <div class="padding">
+        <div class="row container d-flex justify-content-center">
+            <div class="col-md-12">
+                <div class="card px-3">
+                    <div class="card-body">
+                        <h4 class="card-title">{{ .User.Firstname }}'s Todo list</h4>
+                        <div class="add-items d-flex">
+                           <input type="text" class="form-control todo-list-input" id="taskName" placeholder="e.g., Review design docs">
+                           <input type="text" class="form-control todo-list-input" id="assignee" placeholder="Assignee (optional)">
+                           <button onclick="createTask()" class="add btn btn-primary font-weight-bold todo-list-add-btn">Add</button> 
+                        </div>
+                        <div class="list-wrapper">
+                            <ul id= "myUl" class="d-flex flex-column-reverse todo-list">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+  /* When the user clicks on the button,
+toggle between hiding and showing the dropdown content */
+function myFunction() {
+  document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+  showTasks();
+
+  // Show tasks in a list format
+  function showTasks(param) {
+    fetch("api/tasks", {
+  method: "GET",
+  headers: {
+      "Content-Type" : "application/json"
+    },
+    body: null
+})
+.then(response => response.json())
+.then(json => {
+  console.log(json)
+    document.getElementById("myUl").innerHTML = "";
+    json.data.forEach(function(item) {
+      // var li = document.createElement("li");
+      // var li = createCard(item);
+      var li = createTodo(item); 
+      // var text = document.createTextNode("Task name: " + item.TaskName + ", Assignee: " + item.Assignee + ", Is done: " + "false");
+      li.setAttribute('id', item.ID)
+      // li.setAttribute('onclick','deleteTask(this);');
+      // li.appendChild(text);
+      document.getElementById('myUl').appendChild(li);
+    });
+});
+  }
+
+function createTodo(param) {
+  let li = document.createElement('li');
+  
+  let div = document.createElement('div');
+  div.className = 'form-check';
+
+  label = document.createElement('label'); 
+  label.className = 'form-check-label';
+  label.type = 'text';
+  label.textContent = param.Assignee == "" ? param.TaskName : param.TaskName + " Assigned to " + param.Assignee;
+  if (param.isDone) label.style = "text-decoration: line-through;";
+
+  input = document.createElement('input'); 
+  input.className = 'checkbox'; 
+  input.type = 'checkbox'; 
+  input.checked = param.isDone;
+  input.onclick = function() {
+    toggleIsDone(param);
+};
+  
+  let i = document.createElement('i'); 
+  i.className = 'input-helper'; 
+
+  label.appendChild(input); 
+  label.appendChild(i); 
+
+  div.appendChild(label); 
+
+  let i2 = document.createElement('i'); 
+  i2.className = 'material-icons'; 
+  i2.textContent = 'close';
+  i2.style = "position:absolute; right: 50px;";
+  i2.onclick = function() {
+    deleteTask(param);
+};
+
+let i3 = document.createElement('i'); 
+  i3.className = 'material-icons'; 
+  i3.textContent = 'edit';
+  i3.style = "position:absolute; right: 85px;";
+  i3.onclick = function() {
+    console.log(param);
+    editTask(param);
+};
+
+  li.appendChild(div);
+  li.appendChild(i2);
+  li.appendChild(i3);
+  return li;
+}
+
+function toggleIsDone(param) { 
+  param.isDone = !param.isDone; 
+  updateTask(param);
+}
+
+function updateTask(param) { 
+  console.log(param);
+  fetch('api/tasks/' + param.id, {
+  method: 'PATCH',
+  headers: {
+      "Content-Type" : "application/json"
+    },
+    body: JSON.stringify({ID: param.ID, TaskName: param.TaskName, Assignee: param.Assignee, IsDone: param.isDone})
+  }).then(response => {
+    console.log(response);
+    showTasks();
+  }).catch(e => {
+    console.log(e);
+  });
+}
+
+
+// <div class="add-items d-flex">
+//                            <input type="text" class="form-control todo-list-input" id="taskName" placeholder="e.g., Review design docs">
+//                            <input type="text" class="form-control todo-list-input" id="assignee" placeholder="Assignee (optional)">
+//                            <button onclick="createTask()" class="add btn btn-primary font-weight-bold todo-list-add-btn">Add</button> 
+//                         </div>
+function editTask(param) {
+  let div = document.createElement('div'); 
+  div.class = "add-items d-flex";
+
+  let input = document.createElement('input'); 
+  input.type = "text"; 
+  input.className = "form-control todo-list-input"; 
+  input.id = "editTaskName"; 
+  input.placeholder = "e.g., Review design docs"; 
+  input.value = param.TaskName;
+
+  let input2 = document.createElement('input'); 
+  input2.type = "text"; 
+  input2.className = "form-control todo-list-input"; 
+  input2.id = "editAssignee"; 
+  input2.placeholder ="Assignee (optional)";
+  input2.value = param.Assignee;
+
+  let button = document.createElement('button'); 
+  button.className = "add btn btn-primary font-weight-bold todo-list-add-btn"; 
+  button.onclick = function() {
+    updateTask({ID: param.ID, TaskName:input.value, Assignee:input2.value, IsDone: param.isDone});
+  }
+  button.textContent = "Save";
+
+  let button2 = document.createElement('button'); 
+  button2.className = "add btn btn-secondary font-weight-bold todo-list-add-btn"; 
+  button2.onclick = function() {
+    showTasks();
+  }
+  button2.textContent = "Cancel";
+
+  
+  div.appendChild(input); 
+  div.appendChild(input2); 
+  div.appendChild(button);
+  div.appendChild(button2);
+  // button.onclick="editTask()"
+  const listItem = document.getElementById(param.ID); 
+  listItem.parentNode.replaceChild(div, listItem);
+}
+
+function deleteTask(param) { 
+  fetch('api/tasks/' + param.ID, {
+  method: 'DELETE',
+  headers: {
+      "Content-Type" : "application/json"
+    },
+  body: null
+  }).then(response => {
+    console.log(response);
+    showTasks();
+  }).catch(e => {
+    console.log(e);
+  });
+}
+
+// Creates task in database 
+function createTask() {
+  console.log('here');
+  var TaskName = document.getElementById('taskName').value;
+  var Assignee = document.getElementById('assignee').value;
+  fetch('api/tasks/', {
+  method: 'POST',
+  headers: {
+    'Accept': 'application/json, text/plain, */*',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({TaskName: TaskName, Assignee: Assignee})
+}).then(response => {
+    console.log(response);
+    showTasks();
+    document.getElementById('taskName').value = ""; 
+    document.getElementById('assignee').value = ""; 
+}).catch(e => {
+    console.log(e);
+});
+}
+
+function updatePassword(param) { 
+  var oldPassword = document.getElementById('oldPasswordUserInput').value; 
+  var newPassword = document.getElementById('newPasswordUserInput').value; 
+  var confirmNewPassword = document.getElementById('confirmNewPasswordUserInput').value; 
+  if (newPassword != confirmNewPassword) { 
+    document.getElementById('updatePasswordStatus').innerHTML = "Passwords don't match."
+    return
+  }
+  fetch('auth/resetPassword/', {
+  method: 'PATCH',
+  headers: {
+      "Content-Type" : "application/json"
+    },
+  body: JSON.stringify(
+    {
+      oldPassword: oldPassword, newPassword: newPassword
+    }
+  )
+}).then(async response => {
+        const isJson = response.headers.get('content-type')?.includes('application/json');
+        const data = isJson ? await response.json() : null;
+
+        // check for error response
+        if (!response.ok) {
+            // get error message from body or default to response status
+            const error = (data && data.message) || response.status;
+            return Promise.reject(error);
+        }
+        document.getElementById('updatePasswordStatus').innerHTML = "Password sucessfully updated."
+        document.getElementById('oldPasswordUserInput').value = ""; 
+        document.getElementById('newPasswordUserInput').value = ""; 
+        document.getElementById('confirmNewPasswordUserInput').value = ""; 
+        console.log(data);
+    })
+    .catch(error => {
+      if (error == 409) {
+      document.getElementById('updatePasswordStatus').innerHTML = "Old password did not match our records."
+      }
+      else {
+        document.getElementById('updatePasswordStatus').innerHTML = `Error: ${error}`;
+      }
+      console.error('There was an error!', error);
+    });
+}
+
+function logout()  {
+  fetch('auth/logout/', {
+  method: 'POST',
+  headers: {
+      "Content-Type" : "application/json"
+    },
+}).then(response => {
+    console.log(response);
+    window.location.href = '/';
+}).catch(e => {
+    console.log(e);
+});
+}
+
+</script>
+</body>
+</html>
