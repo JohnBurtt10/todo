@@ -15,12 +15,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-/*
-docker exec -it my-postgres bash
-psql mytestdb postgres
-select * from friends.test
-*/
-
 type App struct {
 	*fiber.App
 
@@ -64,7 +58,6 @@ func setupRoutes(app *fiber.App) {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println("Username:", sess.Get("username"))
 		if sess.Get("username") == nil {
 			return c.Status(fiber.StatusTemporaryRedirect).Redirect("/signup")
 		}
@@ -78,9 +71,11 @@ func setupRoutes(app *fiber.App) {
 			return fiber.NewError(fiber.StatusInternalServerError, "session user not found")
 		}
 
+		Initals := user.Firstname[0:1] + user.Lastname[0:1]
+
 		return c.Render("dashboard", fiber.Map{
-			"User":        user,
-			"SettingIcon": user.Firstname[0:1],
+			"User":     user,
+			"Initials": Initals,
 		})
 	})
 	app.Static("/", "./static/public", fiber.Static{

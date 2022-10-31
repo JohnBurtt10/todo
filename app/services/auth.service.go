@@ -31,7 +31,6 @@ func Login(ctx *fiber.Ctx) error {
 	}
 	err = argon2ID.ComparePasswordAndHash(u.Password, b.Password)
 	if err != nil {
-		fmt.Println("password")
 		return fiber.NewError(fiber.StatusConflict, "Invalid password")
 	}
 

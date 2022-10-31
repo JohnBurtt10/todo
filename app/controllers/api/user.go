@@ -21,7 +21,6 @@ func CheckIfUserExists(c *fiber.Ctx) error {
 			"message": "Cannot parse JSON",
 		})
 	}
-	fmt.Println(b)
 	user := &[]models.User{}
 	err := repos.FindUserByUsername(user, b.Username)
 	if err != nil {

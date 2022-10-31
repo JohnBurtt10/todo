@@ -9,6 +9,7 @@ import (
 	"gorm.io/driver/postgres"
 
 	"github.com/JohnBurtt10/go/app/models"
+	"github.com/JohnBurtt10/go/config"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -29,7 +30,7 @@ var (
 
 	// SessionStore for session storage
 	SessionStore *session.Store
-	// cfg          *config.DatabaseConfig
+	cfg          *config.DatabaseConfig
 )
 
 type Database struct {
@@ -40,6 +41,7 @@ func Setup() {
 	if DBConn != nil {
 		return
 	}
+	cfg = config.GetInstance().GetDatabaseConfig()
 
 	if err := connect(); err != nil {
 		log.Panicf("error could not connect database (%s)", err.Error())
@@ -56,7 +58,7 @@ func Setup() {
 
 func connect() error {
 	var err error
-	connectionString := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s", host, port, user, dbname, password)
+	connectionString := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s", cfg.Default.Host, cfg.Default.Port, cfg.Default.Username, cfg.Default.DBName, cfg.Default.Password)
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{

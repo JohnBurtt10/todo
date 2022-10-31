@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+	"os"
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,6 +17,7 @@ type Config struct {
 	O            interface{}
 	errorHandler fiber.ErrorHandler
 	fiber        *fiber.Config
+	database     *DatabaseConfig
 	jwtSecret    string
 	// clientTLSConfig *tls.Config
 	AppVersion    string
@@ -78,10 +81,20 @@ func GetInstance() *Config {
 		instantiated.SetConfigName(".env")
 		instantiated.SetConfigType("dotenv")
 		instantiated.AddConfigPath(".")
+
+		// Read configuration
+		if err := instantiated.ReadInConfig(); err != nil {
+			if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+				fmt.Println("failed to read configuration:", err.Error())
+				os.Exit(1)
+			}
+		}
+
 		instantiated.SetErrorHandler(defaultErrorHandler)
 
 		// Automatically refresh environment variables
 		instantiated.AutomaticEnv()
+		instantiated.setDatabaseConfig()
 
 	})
 	return instantiated
@@ -92,14 +105,39 @@ func (config *Config) SetErrorHandler(errorHandler fiber.ErrorHandler) {
 }
 
 func (config *Config) setDefaults() {
+	// Set default database configuration
+	config.SetDefault("DB_HOST", "localhost")
+	config.SetDefault("DB_USERNAME", "postgres")
+	config.SetDefault("DB_PASSWORD", "mysecretpassword")
+	config.SetDefault("DB_PORT", 5432)
+	config.SetDefault("DB_NAME", "todo")
+
+	// Set default session configuration
 	config.SetDefault("MW_FIBER_SESSION_STORAGE_HOST", "localhost")
 	config.SetDefault("MW_FIBER_SESSION_STORAGE_PORT", 6379)
 	config.SetDefault("MW_FIBER_SESSION_STORAGE_USERNAME", "")
 	config.SetDefault("MW_FIBER_SESSION_STORAGE_PASSWORD", "")
-	config.SetDefault("MW_FIBER_SESSION_STORAGE_DATABASE", "mytestdb")
+	config.SetDefault("MW_FIBER_SESSION_STORAGE_DATABASE", "todo")
 	config.SetDefault("MW_FIBER_SESSION_STORAGE_RESET", false)
 	config.SetDefault("MW_FIBER_SESSION_EXPIRATION", "24h")
 
+}
+
+func (config *Config) setDatabaseConfig() {
+	config.database = &DatabaseConfig{
+		Default: DatabaseDriver{
+			Driver:   config.GetString("DB_DRIVER"),
+			Host:     config.GetString("DB_HOST"),
+			Username: config.GetString("DB_USERNAME"),
+			Password: config.GetString("DB_PASSWORD"),
+			DBName:   config.GetString("DB_NAME"),
+			Port:     config.GetInt("DB_PORT"),
+		},
+	}
+}
+
+func (config *Config) GetDatabaseConfig() *DatabaseConfig {
+	return config.database
 }
 
 func (config *Config) setFiberConfig() {
