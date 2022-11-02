@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/JohnBurtt10/go/app/middleware"
 	"github.com/JohnBurtt10/go/app/services"
 	configuration "github.com/JohnBurtt10/go/config"
 	"github.com/JohnBurtt10/go/database"
@@ -52,16 +53,16 @@ func setupApp(config *configuration.Config) App {
 // TODO: add success and message fiber app fields
 func setupRoutes(app *fiber.App) {
 
-	app.Get("/", func(c *fiber.Ctx) error {
+	app.Get("/", middleware.RequireSession, func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusTemporaryRedirect).Redirect("/dashboard/")
+	})
+
+	app.Get("/dashboard", middleware.RequireSession, func(c *fiber.Ctx) error {
 		// Render index template
 		sess, err := database.SessionStore.Get(c)
 		if err != nil {
 			panic(err)
 		}
-		if sess.Get("username") == nil {
-			return c.Status(fiber.StatusTemporaryRedirect).Redirect("/signup")
-		}
-
 		user, err := services.UserTemplateFromContext(c)
 		if err != nil {
 			log.Printf("error could not find user (%s)\n", err.Error())
@@ -71,13 +72,14 @@ func setupRoutes(app *fiber.App) {
 			return fiber.NewError(fiber.StatusInternalServerError, "session user not found")
 		}
 
-		Initals := user.Firstname[0:1] + user.Lastname[0:1]
+		Initals := user.FirstName[0:1] + user.LastName[0:1]
 
 		return c.Render("dashboard", fiber.Map{
 			"User":     user,
 			"Initials": Initals,
 		})
 	})
+
 	app.Static("/", "./static/public", fiber.Static{
 		Compress:  true,
 		ByteRange: true,
@@ -94,7 +96,7 @@ func setupRoutes(app *fiber.App) {
 
 	})
 
-	app.Get("/changepassword", func(c *fiber.Ctx) error {
+	app.Get("/changepassword", middleware.RequireSession, func(c *fiber.Ctx) error {
 		return c.Render("changepassword", fiber.Map{})
 	})
 
@@ -111,7 +113,7 @@ func setupRoutes(app *fiber.App) {
 	routes.AuthRoutes(authGroup)
 
 	// api group
-	api := app.Group("/api")
+	api := app.Group("/api") // TODO: require session/auth
 
 	// give response when at /api
 	api.Get("", func(c *fiber.Ctx) error {

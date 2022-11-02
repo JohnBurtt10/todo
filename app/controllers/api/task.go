@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 
 	"github.com/JohnBurtt10/go/app/models"
 	"github.com/JohnBurtt10/go/app/repos"
 	"github.com/JohnBurtt10/go/app/services"
+	"github.com/JohnBurtt10/go/app/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
 )
@@ -41,18 +41,16 @@ func GetTasks(c *fiber.Ctx) error {
 }
 
 func UpdateTask(c *fiber.Ctx) error {
-	var body models.Task
+	var body models.TaskDTO
 
-	if err := c.BodyParser(&body); err != nil {
-		fmt.Println(err)
+	if err := utils.ParseBodyAndValidate(c, &body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
 			"message": "Cannot parse JSON",
 		})
 	}
-	aTask, err := repos.UpdateTask(body.ID, body.TaskName, body.Assignee, body.IsDone)
+	aTask, err := repos.UpdateTask(*body.ID, body.Title, body.Assignee, body.IsDone)
 	if err != nil {
-		fmt.Println(err)
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 			"success": false,
 			"message": err.Error(),
@@ -102,18 +100,16 @@ func CreateTask(c *fiber.Ctx) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var body models.Task
+	var body models.TaskDTO
 
-	if err := c.BodyParser(&body); err != nil {
-		fmt.Println(err)
+	if err := utils.ParseBodyAndValidate(c, &body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
 			"message": "Cannot parse JSON",
 		})
 	}
-	aTask, err := repos.CreateTask(body.TaskName, body.Assignee, body.IsDone, UserID)
+	aTask, err := repos.CreateTask(body.Title, body.Assignee, body.IsDone, UserID)
 	if err != nil {
-		fmt.Println(err)
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 			"success": false,
 			"message": err.Error(),

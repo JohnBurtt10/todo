@@ -9,7 +9,6 @@ import (
 )
 
 func GetTasks(userID uint) (*[]models.Task, error) {
-	// var tasks []models.Task
 	var user models.User
 	database.DBConn.First(&user, userID)
 	var tasks []models.Task
@@ -17,16 +16,16 @@ func GetTasks(userID uint) (*[]models.Task, error) {
 	return &tasks, err
 }
 
-func UpdateTask(TaskID uint, TaskName string, Assignee string, IsDone bool) (*models.Task, error) {
-	var task = models.Task{TaskName: TaskName, Assignee: Assignee, IsDone: IsDone}
-	err := database.DBConn.Model(models.Task{ID: TaskID}).Select("TaskName", "Assignee", "IsDone").Updates(models.Task{TaskName: TaskName, Assignee: Assignee, IsDone: IsDone}).Error
+func UpdateTask(taskID uint, title string, assignee string, isDone bool) (*models.Task, error) {
+	var task = models.Task{Title: title, Assignee: assignee, IsDone: isDone}
+	task.ID = taskID
+	err := database.DBConn.Model(&task).Select("Title", "Assignee", "IsDone").Where("id = ?", taskID).Updates(models.Task{Title: title, Assignee: assignee, IsDone: isDone}).Error
 	return &task, err
 
 }
 
 func DeleteTask(taskID uint) error {
 	var item models.Task
-	// Delete the note and return error if encountered
 	err := database.DBConn.Delete(&item, taskID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return errors.New("task not found")
@@ -34,12 +33,10 @@ func DeleteTask(taskID uint) error {
 	return nil
 }
 
-func CreateTask(TaskName string, Assignee string, IsDone bool, UserID uint) (*models.Task, error) {
-	var task = &models.Task{TaskName: TaskName, Assignee: Assignee, IsDone: IsDone, UserID: UserID}
+func CreateTask(title string, assignee string, isDone bool, userID uint) (*models.Task, error) {
+	var task = &models.Task{Title: title, Assignee: assignee, IsDone: isDone, UserID: userID} // this will create a NULL value in the db if isDOne == false
 	if err := database.DBConn.Create(&task).Error; err != nil {
 		return nil, err
 	}
-	//
 	return task, nil
-	// ...
 }

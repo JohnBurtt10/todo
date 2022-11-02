@@ -3,6 +3,7 @@ module github.com/JohnBurtt10/go
 go 1.14
 
 require (
+	github.com/go-playground/validator/v10 v10.11.1 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/gofiber/fiber/v2 v2.37.1
 	github.com/gofiber/storage/redis v0.0.0-20221005114327-4e6f1c95ff26

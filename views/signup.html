@@ -140,13 +140,8 @@ nameField.addEventListener('focusout', () => {
   nameField.setCustomValidity('');
   document.getElementById('tag').innerHTML = 'Please chose an username';
   checkUsername(nameField);
-  // I don't know what this does
   nameField.checkValidity();
-    // console.log(nameField.checkValidity());
 });
-
-// nameField.addEventListener('invalid', () => {
-// })
 
 
 function checkUsername(param) {

@@ -1,25 +1,32 @@
 package models
 
 import (
-	"time"
-
 	"gorm.io/gorm"
 )
 
+// Task struct defines the task
 type Task struct {
 	gorm.Model
-	ID        uint
-	TaskName  string `validate:"omitempty,ascii"`
-	Assignee  string
-	CreatedAt time.Time
-	IsDone    bool `gorm:"default:false" json:"isDone"`
-	UserID    uint
+	Title    string `json:"title"`
+	Assignee string `json:"assignee"`
+	IsDone   bool   `json:"isDone"`
+	UserID   uint   `json:"userID"`
 }
+
+type TaskDTO struct {
+	ID       *uint  `json:"id"`
+	Title    string `json:"title"`
+	Assignee string `json:"assignee"`
+	IsDone   bool   `json:"isDone"`
+	UserID   uint   `json:"userID"`
+}
+
+// TODO: add dto and use BodyParseAndValidate in controller
+
 type TaskResponse struct {
-	ID        uint
-	TaskName  string `validate:"omitempty,ascii"`
-	Assignee  string
-	CreatedAt time.Time
-	IsDone    bool `gorm:"default:false" json:"isDone"`
-	UserID    uint
+	ID       uint   `json:"id"`
+	Title    string `json:"title"`
+	Assignee string `json:"assignee"`
+	IsDone   bool   `json:"isDone"`
+	UserID   uint   `json:"userID"`
 }

@@ -20,8 +20,8 @@ func FindUserByUsername(dest interface{}, username string) error {
 	return FindUser(dest, "username = ?", username)
 }
 
-func FindUserByID(dest interface{}, ID uint) error {
-	return FindUser(dest, "ID = ?", ID)
+func FindUserByID(dest interface{}, id uint) error {
+	return FindUser(dest, "id = ?", id)
 }
 
 // Creates an user in the user's table

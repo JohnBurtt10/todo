@@ -1,10 +1,9 @@
 package controllers
 
 import (
-	"fmt"
-
 	"github.com/JohnBurtt10/go/app/models"
 	"github.com/JohnBurtt10/go/app/repos"
+	"github.com/JohnBurtt10/go/app/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
 )
@@ -14,8 +13,7 @@ func CheckIfUserExists(c *fiber.Ctx) error {
 		Username string `json:"username" validate:"omitempty,min=5,max=16,alphanum"`
 	}
 	b := Request{}
-	if err := c.BodyParser(&b); err != nil {
-		fmt.Println(err)
+	if err := utils.ParseBodyAndValidate(c, &b); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
 			"message": "Cannot parse JSON",

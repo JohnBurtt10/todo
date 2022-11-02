@@ -9,6 +9,7 @@ import (
 
 	"github.com/JohnBurtt10/go/app/models"
 	"github.com/JohnBurtt10/go/app/repos"
+	"github.com/JohnBurtt10/go/app/utils"
 	"github.com/JohnBurtt10/go/app/utils/password/argon2id"
 	"github.com/JohnBurtt10/go/database"
 	"github.com/gofiber/fiber/v2"
@@ -18,8 +19,8 @@ import (
 
 func Login(ctx *fiber.Ctx) error {
 	argon2ID := argon2id.New()
-	b := new(models.User)
-	if err := ctx.BodyParser(&b); err != nil {
+	b := new(models.LoginDTO)
+	if err := utils.ParseBodyAndValidate(ctx, b); err != nil {
 		return err
 	}
 
@@ -59,9 +60,9 @@ func Login(ctx *fiber.Ctx) error {
 
 func Signup(ctx *fiber.Ctx) error {
 	argon2ID := argon2id.New()
-	b := new(models.User)
+	b := new(models.SignupDTO)
 
-	if err := ctx.BodyParser(&b); err != nil {
+	if err := utils.ParseBodyAndValidate(ctx, b); err != nil {
 		return err
 	}
 	// not needed
@@ -77,8 +78,8 @@ func Signup(ctx *fiber.Ctx) error {
 	}
 
 	user := &models.User{
-		Firstname: b.Firstname,
-		Lastname:  b.Lastname,
+		FirstName: b.FirstName,
+		LastName:  b.LastName,
 		Username:  b.Username,
 		Password:  hash,
 	}
@@ -136,12 +137,12 @@ func ResetPassword(ctx *fiber.Ctx) error {
 		panic(err)
 	}
 	type Request struct {
-		OldPassword string `json:"oldpassword" validate:"omitempty,min=8,max=20,alphanum"`
-		NewPassword string `json:"newpassword" validate:"omitempty,min=8,max=20,alphanum"`
+		OldPassword string `json:"oldpassword" validate:"required,min=8"`
+		NewPassword string `json:"newpassword" validate:"required,min=8"`
 	}
 
 	b := new(Request)
-	if err := ctx.BodyParser(&b); err != nil {
+	if err := utils.ParseBodyAndValidate(ctx, b); err != nil {
 		return err
 	}
 
@@ -151,7 +152,7 @@ func ResetPassword(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	err = argon2ID.ComparePasswordAndHash(b.OldPassword, u.Password)
+	err = argon2ID.ComparePasswordAndHash(u.Password, b.OldPassword)
 	if err != nil {
 		return err
 	}

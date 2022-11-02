@@ -99,10 +99,9 @@
         window.location.href = '/';
         document.getElementById('floatingInput').value = '';
         document.getElementById('floatingPassword').value = '';
-        console.log(data);
     })
     .catch(error => {
-      
+        // network error
         // document.getElementById('loginStatus').innerHTML = `Error: ${error}`;
         console.error('There was an error!', error);
     });
